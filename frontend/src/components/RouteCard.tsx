@@ -1,99 +1,137 @@
 import React from 'react';
-import { 
-  Card, 
-  CardContent, 
-  Typography, 
-  Box, 
+import {
+  Card,
+  CardContent,
+  Typography,
+  Box,
+  Chip,
   Divider,
-  Chip
+  Button,
+  Stack
 } from '@mui/material';
 import { BusRoute } from '../types';
 import DirectionsBusIcon from '@mui/icons-material/DirectionsBus';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import LocalTaxiIcon from '@mui/icons-material/LocalTaxi';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import StarIcon from '@mui/icons-material/Star';
 
 interface RouteCardProps {
   route: BusRoute;
+  onViewDetails: (route: BusRoute) => void;
+  showType?: boolean;
 }
 
-const RouteCard: React.FC<RouteCardProps> = ({ route }) => {
+const RouteCard: React.FC<RouteCardProps> = ({ route, onViewDetails, showType = true }) => {
+  // Handle both old and new data formats
+  const price = route.price || route.fare || 0;
+  const routeName = route.routeName || `${route.origin} to ${route.destination}${route.routeNumber ? ` (${route.routeNumber})` : ''}`;
+  const duration = route.duration || route.estimatedTime || '';
+  
   return (
     <Card 
       sx={{ 
         mb: 2,
-        backgroundColor: 'rgba(255, 255, 255, 0.95)',
-        backdropFilter: 'blur(8px)',
-        transition: 'transform 0.2s, box-shadow 0.2s',
-        border: '1px solid rgba(230, 230, 230, 0.5)',
+        border: '1px solid',
+        borderColor: 'divider',
+        boxShadow: 2,
+        transition: 'transform 0.2s',
         '&:hover': {
-          transform: 'translateY(-4px)',
-          boxShadow: '0 8px 24px rgba(0,0,0,0.12)'
+          transform: 'translateY(-2px)',
+          boxShadow: 3
         }
       }}
     >
       <CardContent>
-        <Typography variant="h6" gutterBottom>
-          🚌 {route.routeName}
-        </Typography>
+        <Stack direction="row" justifyContent="space-between" alignItems="flex-start" sx={{ mb: 1 }}>
+          <Typography variant="h6" component="div">
+            {routeName}
+          </Typography>
+          
+          {route.rating && (
+            <Chip 
+              icon={<StarIcon fontSize="small" />} 
+              label={route.rating.toFixed(1)} 
+              color="primary"
+              size="small"
+              variant="outlined"
+            />
+          )}
+        </Stack>
         
-        <Box sx={{ display: 'flex', gap: 2, mb: 2, flexWrap: 'wrap' }}>
-          <Chip 
-            icon={<AccessTimeIcon />}
-            label={`⏱️ ${route.estimatedTime}`}
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, my: 2 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <DirectionsBusIcon color="action" fontSize="small" sx={{ mr: 1 }} />
+            <Typography variant="body2">
+              {route.operator}
+              {route.busType && ` • ${route.busType}`}
+            </Typography>
+          </Box>
+
+          {duration && (
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <AccessTimeIcon color="action" fontSize="small" sx={{ mr: 1 }} />
+              <Typography variant="body2">{duration}</Typography>
+            </Box>
+          )}
+
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <AttachMoneyIcon color="action" fontSize="small" sx={{ mr: 1 }} />
+            <Typography variant="body2">₹{price}</Typography>
+          </Box>
+        </Box>
+
+        {route.departureTime && route.arrivalTime && (
+          <Box sx={{ mb: 2 }}>
+            <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
+              <Typography variant="body2" fontWeight="bold">{route.departureTime}</Typography>
+              <Divider orientation="horizontal" flexItem sx={{ flexGrow: 1 }} />
+              <Typography variant="body2" fontWeight="bold">{route.arrivalTime}</Typography>
+            </Stack>
+            <Stack direction="row" spacing={1}>
+              <Typography variant="body2" color="text.secondary">{route.origin}</Typography>
+              <Box sx={{ flexGrow: 1 }} />
+              <Typography variant="body2" color="text.secondary">{route.destination}</Typography>
+            </Stack>
+          </Box>
+        )}
+
+        {route.amenities && route.amenities.length > 0 && (
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>Amenities:</Typography>
+            <Stack direction="row" spacing={1} flexWrap="wrap">
+              {route.amenities.map((amenity, index) => (
+                <Chip key={index} label={amenity} size="small" variant="outlined" />
+              ))}
+            </Stack>
+          </Box>
+        )}
+
+        {route.lastMile && (
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="body2" fontWeight="medium" color="text.secondary">Last Mile:</Typography>
+            <Typography variant="body2">
+              {route.lastMile.mode} • {route.lastMile.distance} km • ₹{route.lastMile.fare} • {route.lastMile.estimatedTime}
+            </Typography>
+          </Box>
+        )}
+
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>
+          {route.availableSeats !== undefined && (
+            <Typography variant="body2" color={route.availableSeats < 10 ? 'error.main' : 'text.secondary'}>
+              {route.availableSeats} {route.availableSeats === 1 ? 'seat' : 'seats'} available
+            </Typography>
+          )}
+          
+          <Button
+            variant="contained"
             color="primary"
-          />
-          <Chip 
-            icon={<AttachMoneyIcon />}
-            label={`💰 ₹${route.fare}`}
-            color="secondary"
-          />
-          <Chip 
-            label={`🚍 ${route.operator}`}
-            variant="outlined"
-          />
-        </Box>
-
-        <Divider sx={{ my: 2 }} />
-
-        <Typography variant="subtitle1" gutterBottom sx={{ color: 'primary.main' }}>
-          🚕 Last Mile Options
-        </Typography>
-        
-        <Box sx={{ pl: 2, bgcolor: 'rgba(0, 0, 0, 0.03)', p: 2, borderRadius: 1 }}>
-          <Typography variant="body2">
-            🚗 Mode: {route.lastMile.mode}
-          </Typography>
-          <Typography variant="body2">
-            📍 Distance: {route.lastMile.distance} km
-          </Typography>
-          <Typography variant="body2">
-            💵 Fare: ₹{route.lastMile.fare}
-          </Typography>
-          <Typography variant="body2">
-            ⏰ Time: {route.lastMile.estimatedTime}
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            ℹ️ {route.lastMile.availability}
-          </Typography>
-        </Box>
-
-        <Box sx={{ 
-          mt: 2, 
-          p: 2, 
-          bgcolor: 'primary.main', 
-          color: 'white',
-          borderRadius: 1 
-        }}>
-          <Typography variant="subtitle2">
-            🎯 Total Journey Summary
-          </Typography>
-          <Typography variant="body2">
-            ⏱️ Total Duration: {route.estimatedTime} + {route.lastMile.estimatedTime}
-          </Typography>
-          <Typography variant="body2">
-            💰 Total Fare: ₹{route.fare + route.lastMile.fare}
-          </Typography>
+            size="small"
+            startIcon={<InfoOutlinedIcon />}
+            onClick={() => onViewDetails(route)}
+          >
+            View Details
+          </Button>
         </Box>
       </CardContent>
     </Card>
