@@ -13,29 +13,26 @@ import {
   FormControlLabel,
   Radio
 } from '@mui/material';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import DirectionsBusIcon from '@mui/icons-material/DirectionsBus';
 import { statesAndUTs } from '../data/indianStates'; // Updated import path
 
 interface SearchFormProps {
-  onSearch: (origin: string, destination: string, travelMode: string, journeyDate: Date | null) => void;
+  onSearch: (origin: string, destination: string, travelMode: string) => void;
+  loading?: boolean;
 }
 
-const SearchForm: React.FC<SearchFormProps> = ({ onSearch }) => {
+const SearchForm: React.FC<SearchFormProps> = ({ onSearch, loading = false }) => {
   const [originCity, setOriginCity] = useState('');
   const [originState, setOriginState] = useState('');
   const [destinationCity, setDestinationCity] = useState('');
   const [destinationState, setDestinationState] = useState('');
   const [travelMode, setTravelMode] = useState('BUS ONLY'); // Default travel mode
-  const [journeyDate, setJourneyDate] = useState<Date | null>(null); // State for journey date
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const origin = `${originCity}, ${originState}`;
     const destination = `${destinationCity}, ${destinationState}`;
-    onSearch(origin, destination, travelMode, journeyDate);
+    onSearch(origin, destination, travelMode);
   };
 
   return (
@@ -108,25 +105,6 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch }) => {
           </Select>
         </FormControl>
         
-        {/* Journey Date Section */}
-        <Typography variant="subtitle1">Journey Date:</Typography>
-        <LocalizationProvider dateAdapter={AdapterDateFns}>
-          <DatePicker
-            label="Select Journey Date"
-            value={journeyDate}
-            onChange={(newValue) => setJourneyDate(newValue)}
-            minDate={new Date()} // Set minimum date to today
-            maxDate={new Date(new Date().setMonth(new Date().getMonth() + 2))} // Set maximum date to 2 months from today
-            slotProps={{
-              textField: {
-                fullWidth: true,
-                margin: "normal",
-                required: true
-              }
-            }}
-          />
-        </LocalizationProvider>
-        
         {/* Travel Mode Selection */}
         <FormControl component="fieldset" sx={{ mt: 2 }}>
           <Typography variant="subtitle1">Select Mode of Travel:</Typography>
@@ -145,8 +123,9 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch }) => {
           variant="contained" 
           fullWidth 
           sx={{ mt: 2 }}
+          disabled={loading}
         >
-          Find Route
+          {loading ? 'Searching...' : 'Find Route'}
         </Button>
       </Box>
     </Paper>

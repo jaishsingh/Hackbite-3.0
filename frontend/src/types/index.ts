@@ -1,12 +1,30 @@
+export interface LastMile {
+  mode: string;
+  distance: number;
+  fare: number;
+  availability: string;
+  estimatedTime: string;
+}
+
 export interface BusRoute {
   id: string;
-  routeName: string;
+  routeNumber?: string;
+  routeName?: string;
   origin: string;
   destination: string;
-  estimatedTime: string;
-  fare: number;
+  departureTime?: string;
+  arrivalTime?: string;
+  duration?: string;
+  estimatedTime?: string;
+  price?: number;
+  fare?: number;
+  busType?: string;
   operator: string;
-  lastMile: LastMileOption;
+  availableSeats?: number;
+  amenities?: string[];
+  rating?: number;
+  via?: string[];
+  lastMile?: LastMile;
 }
 
 export interface LastMileOption {

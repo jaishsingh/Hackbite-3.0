@@ -1,0 +1,34 @@
+# === General ===
+node_modules/
+.env
+.env.local
+.env.*.local
+dist/
+build/
+logs
+*.log
+npm-debug.log*
+
+# === OS and Editor ===
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# === Testing and Coverage ===
+coverage/
+*.lcov
+
+# === React/Next.js ===
+.next/
+out/
+.cache/
+
+# === TypeScript ===
+*.tsbuildinfo
+
+# === Optional: Ignore uploads or other runtime folders ===
+uploads/
+tmp/

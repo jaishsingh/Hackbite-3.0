@@ -22,7 +22,10 @@ app.get("/", (req, res) => {
 
 // Routes
 const travelRoutes = require("./routes/travelRoutes");
+const aiRoutes = require("./routes/aiRoutes");
+
 app.use("/api/travel", travelRoutes);
+app.use("/api/ai", aiRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
